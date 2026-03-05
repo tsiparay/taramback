@@ -3,28 +3,15 @@ import { Router } from 'express';
 import { requireRole } from '../utils/permissions';
 import { validateRequest } from '../utils/validate';
 import { Role } from '../types/permissions';
-import { all } from '../utils/db';
+import * as categoriesController from '../controllers/categoriesController';
 
 const router = Router();
 
-router.get('/', async (req, res) => {
-  const rows = await all<{ id: number; name: string; description: string; networkId: number }>(
-    'SELECT id, name, description, networkId FROM categories ORDER BY id ASC'
-  );
+router.get('/', categoriesController.list);
+router.get('/:id', categoriesController.getById);
 
-  res.json(rows);
-});
-
-router.post('/', validateRequest, requireRole([Role.ADMIN, Role.EDITOR]), (req, res) => {
-  res.json({ message: 'ok' });
-});
-
-router.put('/:id', validateRequest, requireRole([Role.ADMIN, Role.EDITOR]), (req, res) => {
-  res.json({ message: 'ok' });
-});
-
-router.delete('/:id', requireRole([Role.ADMIN]), (req, res) => {
-  res.json({ message: 'ok' });
-});
+router.post('/', validateRequest, requireRole([Role.ADMIN, Role.EDITOR]), categoriesController.create);
+router.put('/:id', validateRequest, requireRole([Role.ADMIN, Role.EDITOR]), categoriesController.update);
+router.delete('/:id', requireRole([Role.ADMIN]), categoriesController.remove);
 
 export default router;
