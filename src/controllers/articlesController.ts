@@ -101,7 +101,7 @@ export async function notify(req: Request, res: Response) {
     return res.status(400).json({ message: 'validation_error', details: v.errors });
   }
 
-  const result = await notifyArticle(id, v.data.recipients, v.data.subject);
+  const result = await notifyArticle(id, v.data.type, v.data.recipients, v.data.subject);
   if (!result) {
     return res.status(404).json({ message: 'not_found' });
   }

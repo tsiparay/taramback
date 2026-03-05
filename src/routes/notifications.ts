@@ -7,22 +7,48 @@ type DbNotificationRow = {
   userId: number;
   articleId: number;
   type: 'new_article' | 'update';
+  recipientsJson: string;
+  subject: string | null;
+  status: 'sent' | 'failed';
+  error: string | null;
   sentAt: string;
+  articleTitle: string;
 };
 
 const router = Router();
 
 router.get('/', async (req, res) => {
   const rows = await all<DbNotificationRow>(
-    'SELECT id, userId, articleId, type, sentAt FROM notifications ORDER BY sentAt DESC'
+    `SELECT n.id, n.userId, n.articleId, n.type, n.recipientsJson, n.subject, n.status, n.error, n.sentAt,
+            a.title as articleTitle
+     FROM notifications n
+     LEFT JOIN articles a ON a.id = n.articleId
+     ORDER BY n.sentAt DESC`
   );
 
   res.json(
     rows.map((r) => ({
-      ...r,
+      id: r.id,
+      userId: r.userId,
+      articleId: r.articleId,
+      articleTitle: r.articleTitle,
+      type: r.type,
+      subject: r.subject,
+      status: r.status,
+      error: r.error,
+      recipientsCount: safeRecipientsCount(r.recipientsJson),
       sentAt: new Date(r.sentAt),
     }))
   );
 });
+
+function safeRecipientsCount(recipientsJson: string): number {
+  try {
+    const arr = JSON.parse(recipientsJson);
+    return Array.isArray(arr) ? arr.length : 0;
+  } catch {
+    return 0;
+  }
+}
 
 export default router;

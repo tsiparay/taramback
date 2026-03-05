@@ -121,6 +121,10 @@ async function main() {
         userId INTEGER NOT NULL,
         articleId INTEGER NOT NULL,
         type TEXT NOT NULL,
+        recipientsJson TEXT NOT NULL,
+        subject TEXT,
+        status TEXT NOT NULL,
+        error TEXT,
         sentAt TEXT NOT NULL,
         FOREIGN KEY(userId) REFERENCES users(id),
         FOREIGN KEY(articleId) REFERENCES articles(id)
@@ -178,13 +182,21 @@ async function main() {
     }
 
     for (const no of seed.notifications) {
-      await run(db, 'INSERT INTO notifications (id, userId, articleId, type, sentAt) VALUES (?, ?, ?, ?, ?)', [
-        no.id,
-        no.userId,
-        no.articleId,
-        no.type,
-        no.sentAt,
-      ]);
+      await run(
+        db,
+        'INSERT INTO notifications (id, userId, articleId, type, recipientsJson, subject, status, error, sentAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [
+          no.id,
+          no.userId,
+          no.articleId,
+          no.type,
+          JSON.stringify([]),
+          null,
+          'sent',
+          null,
+          no.sentAt,
+        ]
+      );
     }
 
     console.log(`Seed OK: ${dbPath}`);

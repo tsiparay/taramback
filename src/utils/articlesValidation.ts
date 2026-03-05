@@ -116,8 +116,10 @@ export function validatePatchStatus(body: any): ValidationResult<{ status: Artic
   return { ok: true, data: { status: body.status } };
 }
 
-export function validateNotify(body: any): ValidationResult<{ recipients: string[]; subject?: string }> {
+export function validateNotify(body: any): ValidationResult<{ type: 'new_article' | 'update'; recipients: string[]; subject?: string }> {
   const errors: ValidationErrorDetail[] = [];
+
+  const type = body?.type === 'update' ? 'update' : body?.type === 'new_article' ? 'new_article' : null;
 
   const recipients = Array.isArray(body?.recipients)
     ? body.recipients.filter((r: unknown) => typeof r === 'string' && r.includes('@'))
@@ -125,12 +127,18 @@ export function validateNotify(body: any): ValidationResult<{ recipients: string
 
   if (!recipients.length) errors.push({ field: 'recipients', message: 'min_1' });
 
+  if (!type) errors.push({ field: 'type', message: 'invalid' });
+
   if (errors.length) return { ok: false, errors };
+
+  // At this point, type is non-null.
+  const safeType = type as 'new_article' | 'update';
 
   return {
     ok: true,
     data: {
       recipients,
+      type: safeType,
       subject: typeof body?.subject === 'string' ? body.subject : undefined,
     },
   };
