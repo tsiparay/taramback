@@ -1,0 +1,151 @@
+{
+  "networks": [
+    { "id": 1, "name": "Réseau A", "description": "Réseau principal" },
+    { "id": 2, "name": "Réseau B", "description": "Réseau secondaire" }
+  ],
+  "categories": [
+    { "id": 1, "name": "Actualités", "description": "News", "networkId": 1 },
+    { "id": 2, "name": "Tech", "description": "Technologie", "networkId": 1 },
+    { "id": 3, "name": "Culture", "description": "Culture", "networkId": 2 }
+  ],
+  "users": [
+    { "id": 1, "username": "admin", "email": "admin@taram.local", "role": "admin", "networkId": 1 },
+    { "id": 2, "username": "editor", "email": "editor@taram.local", "role": "editor", "networkId": 1 },
+    { "id": 3, "username": "user", "email": "user@taram.local", "role": "user", "networkId": 2 }
+  ],
+  "articles": [
+    {
+      "id": 1,
+      "title": "Bienvenue sur Taram",
+      "content": "Article d'accueil.",
+      "status": "published",
+      "featured": true,
+      "publishedAt": "2026-03-05T10:00:00.000Z",
+      "categoryId": 1,
+      "networkId": 1,
+      "authorId": 1
+    },
+    {
+      "id": 2,
+      "title": "Roadmap éditoriale",
+      "content": "Planification des publications.",
+      "status": "draft",
+      "featured": false,
+      "publishedAt": null,
+      "categoryId": 1,
+      "networkId": 1,
+      "authorId": 2
+    },
+    {
+      "id": 3,
+      "title": "Nouveautés Tech",
+      "content": "Résumé des nouveautés.",
+      "status": "published",
+      "featured": false,
+      "publishedAt": "2026-03-04T10:00:00.000Z",
+      "categoryId": 2,
+      "networkId": 1,
+      "authorId": 2
+    },
+    {
+      "id": 4,
+      "title": "Sécurité et rôles",
+      "content": "Introduction à la gestion des rôles.",
+      "status": "published",
+      "featured": true,
+      "publishedAt": "2026-03-03T10:00:00.000Z",
+      "categoryId": 2,
+      "networkId": 1,
+      "authorId": 1
+    },
+    {
+      "id": 5,
+      "title": "Culture: évènements",
+      "content": "Agenda culturel.",
+      "status": "published",
+      "featured": false,
+      "publishedAt": "2026-03-02T10:00:00.000Z",
+      "categoryId": 3,
+      "networkId": 2,
+      "authorId": 3
+    },
+    {
+      "id": 6,
+      "title": "Guide rédaction",
+      "content": "Bonnes pratiques pour rédiger.",
+      "status": "draft",
+      "featured": false,
+      "publishedAt": null,
+      "categoryId": 1,
+      "networkId": 1,
+      "authorId": 2
+    },
+    {
+      "id": 7,
+      "title": "Annonce réseau B",
+      "content": "Actualité spécifique au réseau B.",
+      "status": "published",
+      "featured": false,
+      "publishedAt": "2026-03-01T10:00:00.000Z",
+      "categoryId": 3,
+      "networkId": 2,
+      "authorId": 3
+    },
+    {
+      "id": 8,
+      "title": "Catégories et tags",
+      "content": "Organisation du contenu.",
+      "status": "published",
+      "featured": false,
+      "publishedAt": "2026-02-28T10:00:00.000Z",
+      "categoryId": 1,
+      "networkId": 1,
+      "authorId": 1
+    },
+    {
+      "id": 9,
+      "title": "Notifications e-mail",
+      "content": "Système de notifications.",
+      "status": "draft",
+      "featured": false,
+      "publishedAt": null,
+      "categoryId": 2,
+      "networkId": 1,
+      "authorId": 1
+    },
+    {
+      "id": 10,
+      "title": "Publication multi-réseaux",
+      "content": "Segmentation par réseaux.",
+      "status": "published",
+      "featured": false,
+      "publishedAt": "2026-02-27T10:00:00.000Z",
+      "categoryId": 1,
+      "networkId": 1,
+      "authorId": 2
+    }
+  ],
+  "notifications": [
+    {
+      "id": 1,
+      "userId": 2,
+      "articleId": 1,
+      "type": "new_article",
+      "sentAt": "2026-03-05T11:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "userId": 1,
+      "articleId": 4,
+      "type": "update",
+      "sentAt": "2026-03-03T12:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "userId": 3,
+      "articleId": 5,
+      "type": "new_article",
+      "sentAt": "2026-03-02T13:00:00.000Z"
+    }
+  ]
+}
