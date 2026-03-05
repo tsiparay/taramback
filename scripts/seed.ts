@@ -94,12 +94,23 @@ async function main() {
         status TEXT NOT NULL,
         featured INTEGER NOT NULL,
         publishedAt TEXT,
-        categoryId INTEGER NOT NULL,
+        categoryId INTEGER,
         networkId INTEGER NOT NULL,
         authorId INTEGER NOT NULL,
         FOREIGN KEY(categoryId) REFERENCES categories(id),
         FOREIGN KEY(networkId) REFERENCES networks(id),
         FOREIGN KEY(authorId) REFERENCES users(id)
+      )`
+    );
+
+    await run(
+      db,
+      `CREATE TABLE IF NOT EXISTS article_categories (
+        articleId INTEGER NOT NULL,
+        categoryId INTEGER NOT NULL,
+        PRIMARY KEY(articleId, categoryId),
+        FOREIGN KEY(articleId) REFERENCES articles(id) ON DELETE CASCADE,
+        FOREIGN KEY(categoryId) REFERENCES categories(id)
       )`
     );
 
@@ -117,6 +128,7 @@ async function main() {
     );
 
     await run(db, 'DELETE FROM notifications');
+    await run(db, 'DELETE FROM article_categories');
     await run(db, 'DELETE FROM articles');
     await run(db, 'DELETE FROM users');
     await run(db, 'DELETE FROM categories');
@@ -161,6 +173,8 @@ async function main() {
           a.authorId,
         ]
       );
+
+      await run(db, 'INSERT INTO article_categories (articleId, categoryId) VALUES (?, ?)', [a.id, a.categoryId]);
     }
 
     for (const no of seed.notifications) {

@@ -22,3 +22,12 @@ export function get<T>(sql: string, params: unknown[] = []) {
     });
   });
 }
+
+export function run(sql: string, params: unknown[] = []) {
+  return new Promise<void>((resolve, reject) => {
+    db.run(sql, params as any, (err) => {
+      if (err) return reject(err);
+      resolve();
+    });
+  });
+}
