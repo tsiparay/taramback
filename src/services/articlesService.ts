@@ -1,6 +1,7 @@
 import { all, get, run } from '../utils/db';
 import type { Article, ArticleStatus, CreateArticleInput, UpdateArticleInput } from '../models/article';
 import { renderArticleNotificationHtml } from '../utils/emailTemplate';
+import { sendEmail } from '../utils/mailer';
 
 type DbArticleRow = {
   id: number;
@@ -202,7 +203,8 @@ export async function notifyArticle(
   id: number,
   type: 'new_article' | 'update',
   recipients: string[],
-  subject?: string
+  subject?: string,
+  userId = 1
 ): Promise<{ message: string } | null> {
   const existing = await getArticleById(id);
   if (!existing) return null;
@@ -211,14 +213,20 @@ export async function notifyArticle(
   const resolvedSubject = subject ?? `Nouvel article: ${existing.title}`;
   const html = renderArticleNotificationHtml({ article: existing, subject: resolvedSubject });
 
-  // For now: store as sent (no SMTP integration). If you later add SMTP, set status based on send result.
-  const status = 'sent';
-  const error = null;
+  let status: 'sent' | 'failed' = 'sent';
+  let error: string | null = null;
+
+  try {
+    await sendEmail({ to: recipients, subject: resolvedSubject, html });
+  } catch (e) {
+    status = 'failed';
+    error = e instanceof Error ? e.message : 'send_failed';
+  }
 
   await run(
     'INSERT INTO notifications (userId, articleId, type, recipientsJson, subject, status, error, sentAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-    [1, id, type, JSON.stringify(recipients), resolvedSubject, status, error, now]
+    [userId, id, type, JSON.stringify(recipients), resolvedSubject, status, error, now]
   );
 
-  return { message: 'sent' };
+  return { message: status };
 }

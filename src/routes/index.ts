@@ -5,6 +5,7 @@ import categoriesRouter from './categories';
 import networksRouter from './networks';
 import notificationsRouter from './notifications';
 import importRouter from './import';
+import usersRouter from './users';
 import * as dashboardController from '../controllers/dashboardController';
 
 const router = Router();
@@ -16,6 +17,7 @@ router.get('/health', (req, res) => {
 router.use('/articles', articlesRouter);
 router.use('/categories', categoriesRouter);
 router.use('/networks', networksRouter);
+router.use('/users', usersRouter);
 router.use('/notifications', notificationsRouter);
 router.use('/import', importRouter);
 

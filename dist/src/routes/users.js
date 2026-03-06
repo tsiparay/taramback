@@ -32,27 +32,14 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const articles_1 = __importDefault(require("./articles"));
-const categories_1 = __importDefault(require("./categories"));
-const networks_1 = __importDefault(require("./networks"));
-const notifications_1 = __importDefault(require("./notifications"));
-const import_1 = __importDefault(require("./import"));
-const users_1 = __importDefault(require("./users"));
-const dashboardController = __importStar(require("../controllers/dashboardController"));
+const permissions_1 = require("../utils/permissions");
+const permissions_2 = require("../types/permissions");
+const validate_1 = require("../utils/validate");
+const usersController = __importStar(require("../controllers/usersController"));
 const router = (0, express_1.Router)();
-router.get('/health', (req, res) => {
-    res.json({ status: 'ok' });
-});
-router.use('/articles', articles_1.default);
-router.use('/categories', categories_1.default);
-router.use('/networks', networks_1.default);
-router.use('/users', users_1.default);
-router.use('/notifications', notifications_1.default);
-router.use('/import', import_1.default);
-router.get('/dashboard', dashboardController.get);
+router.get('/', (0, permissions_1.requireRole)([permissions_2.Role.ADMIN]), usersController.list);
+router.get('/:id', (0, permissions_1.requireRole)([permissions_2.Role.ADMIN]), usersController.getById);
+router.put('/:id', validate_1.validateRequest, (0, permissions_1.requireRole)([permissions_2.Role.ADMIN]), usersController.update);
 exports.default = router;
