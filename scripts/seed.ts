@@ -114,6 +114,9 @@ async function main() {
       )`
     );
 
+    // Ensure notifications schema is up-to-date even if an older DB already exists.
+    await run(db, 'DROP TABLE IF EXISTS notifications');
+
     await run(
       db,
       `CREATE TABLE IF NOT EXISTS notifications (

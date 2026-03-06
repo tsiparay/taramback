@@ -2,8 +2,11 @@ import { Request, Response } from 'express';
 
 import { validateCreateArticle, validateUpdateArticle, validatePatchStatus, validateNotify } from '../utils/articlesValidation';
 import { createArticle, deleteArticle, getArticleById, listArticles, notifyArticle, patchArticleStatus, updateArticle } from '../services/articlesService';
+import { Role } from '../types/permissions';
 
 export async function list(req: Request, res: Response) {
+  const currentUser = (req as any).user as { role: string; networkId: number } | undefined;
+
   const page = req.query.page ? Number(req.query.page) : undefined;
   const pageSize = req.query.pageSize ? Number(req.query.pageSize) : undefined;
 
@@ -14,10 +17,12 @@ export async function list(req: Request, res: Response) {
   const networkIdRaw = typeof req.query.networkId === 'string' ? Number(req.query.networkId) : undefined;
   const networkId = networkIdRaw !== undefined && Number.isFinite(networkIdRaw) ? networkIdRaw : undefined;
 
+  const effectiveNetworkId = currentUser && currentUser.role !== Role.ADMIN ? currentUser.networkId : networkId;
+
   const result = await listArticles({
     query: typeof req.query.query === 'string' ? req.query.query : undefined,
     status: typeof req.query.status === 'string' ? (req.query.status as any) : undefined,
-    networkId,
+    networkId: effectiveNetworkId,
     featured: typeof req.query.featured === 'string' ? req.query.featured === 'true' : undefined,
     categoryIds,
     page,
@@ -37,13 +42,23 @@ export async function getById(req: Request, res: Response) {
     return res.status(404).json({ message: 'not_found' });
   }
 
+  const currentUser = (req as any).user as { role: string; networkId: number } | undefined;
+  if (currentUser && currentUser.role !== Role.ADMIN && article.networkId !== currentUser.networkId) {
+    return res.status(403).json({ message: 'forbidden' });
+  }
+
   return res.json(article);
 }
 
 export async function create(req: Request, res: Response) {
+  const currentUser = (req as any).user as { role: string; networkId: number } | undefined;
   const v = validateCreateArticle(req.body);
   if (!v.ok) {
     return res.status(400).json({ message: 'validation_error', details: v.errors });
+  }
+
+  if (currentUser && currentUser.role !== Role.ADMIN && v.data.networkId !== currentUser.networkId) {
+    return res.status(403).json({ message: 'forbidden' });
   }
 
   const article = await createArticle(v.data);
@@ -53,9 +68,22 @@ export async function create(req: Request, res: Response) {
 export async function update(req: Request, res: Response) {
   const id = Number(req.params.id);
 
+  const currentUser = (req as any).user as { role: string; networkId: number } | undefined;
+  const existing = await getArticleById(id);
+  if (!existing) {
+    return res.status(404).json({ message: 'not_found' });
+  }
+  if (currentUser && currentUser.role !== Role.ADMIN && existing.networkId !== currentUser.networkId) {
+    return res.status(403).json({ message: 'forbidden' });
+  }
+
   const v = validateUpdateArticle(req.body);
   if (!v.ok) {
     return res.status(400).json({ message: 'validation_error', details: v.errors });
+  }
+
+  if (currentUser && currentUser.role !== Role.ADMIN && v.data.networkId !== undefined && v.data.networkId !== currentUser.networkId) {
+    return res.status(403).json({ message: 'forbidden' });
   }
 
   const article = await updateArticle(id, v.data);
@@ -80,6 +108,15 @@ export async function remove(req: Request, res: Response) {
 export async function patchStatus(req: Request, res: Response) {
   const id = Number(req.params.id);
 
+  const currentUser = (req as any).user as { role: string; networkId: number } | undefined;
+  const existing = await getArticleById(id);
+  if (!existing) {
+    return res.status(404).json({ message: 'not_found' });
+  }
+  if (currentUser && currentUser.role !== Role.ADMIN && existing.networkId !== currentUser.networkId) {
+    return res.status(403).json({ message: 'forbidden' });
+  }
+
   const v = validatePatchStatus(req.body);
   if (!v.ok) {
     return res.status(400).json({ message: 'validation_error', details: v.errors });
@@ -95,6 +132,15 @@ export async function patchStatus(req: Request, res: Response) {
 
 export async function notify(req: Request, res: Response) {
   const id = Number(req.params.id);
+
+  const currentUser = (req as any).user as { role: string; networkId: number } | undefined;
+  const existing = await getArticleById(id);
+  if (!existing) {
+    return res.status(404).json({ message: 'not_found' });
+  }
+  if (currentUser && currentUser.role !== Role.ADMIN && existing.networkId !== currentUser.networkId) {
+    return res.status(403).json({ message: 'forbidden' });
+  }
 
   const v = validateNotify(req.body);
   if (!v.ok) {
